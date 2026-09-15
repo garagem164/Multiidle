@@ -21,7 +21,7 @@
       flex-direction: column;
     }
 
-    /* Barra de Ferramentas Responsiva */
+    /* Barra de Ferramentas Superior */
     .top-bar {
       display: flex;
       gap: 6px;
@@ -30,6 +30,7 @@
       border-bottom: 1px solid #333;
       align-items: center;
       flex-wrap: wrap;
+      z-index: 100;
     }
 
     .top-bar input {
@@ -83,9 +84,9 @@
       padding: 4px;
       width: 100%;
       height: 100%;
-      /* Padrão Inicial: 4 Telas (2x2) */
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: repeat(2, 1fr);
+      position: relative;
     }
 
     .panel {
@@ -97,39 +98,49 @@
       background: #000;
       min-width: 0;
       min-height: 0;
+      position: relative;
     }
 
-    /* Esconde painéis inativos */
+    /* Ocultar painéis inativos */
     .panel.hidden {
       display: none !important;
     }
 
-    .panel-bar {
-      display: flex;
-      background-color: #181818;
-      padding: 3px 4px;
-      gap: 4px;
-      align-items: center;
-      z-index: 10;
+    /* Estilo para quando um painel entra em Tela Cheia (Maximizada) */
+    .panel.fullscreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 50;
+      border: none;
+      border-radius: 0;
     }
 
-    .panel-bar input {
-      flex: 1;
-      background: #2b2b2b;
-      border: 1px solid #333;
-      color: #ccc;
-      padding: 3px 6px;
-      border-radius: 3px;
-      font-size: 10px;
-      min-width: 0;
+    /* Botão flutuante de Maximizar/Restaurar */
+    .btn-fullscreen {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      z-index: 20;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      backdrop-filter: blur(2px);
+      transition: background 0.2s;
     }
 
-    .btn-sm {
-      padding: 2px 6px;
-      font-size: 10px;
+    .btn-fullscreen:hover {
+      background: rgba(0, 102, 204, 0.8);
+      border-color: #0066cc;
     }
 
-    /* Container para permitir o viewport virtual sem barras de rolagem */
+    /* Wrapper do iframe para renderização inteira */
     .iframe-wrapper {
       flex: 1;
       width: 100%;
@@ -138,7 +149,6 @@
       overflow: hidden;
     }
 
-    /* Ajuste de escala para o jogo carregar em tamanho ideal */
     iframe {
       width: 150%;
       height: 150%;
@@ -167,49 +177,35 @@
   </div>
 
   <div class="grid-container" id="grid">
+    
     <div class="panel" id="panel1">
-      <div class="panel-bar">
-        <input type="text" id="url1" value="https://poke.idleworld.online/login">
-        <button class="btn btn-sm" onclick="carregar(1)">Ir</button>
-        <button class="btn btn-secondary btn-sm" onclick="recarregar(1)">🔄</button>
-      </div>
+      <button class="btn-fullscreen" onclick="toggleFullscreen(1)" id="btnFull1">🗖 Tela Cheia</button>
       <div class="iframe-wrapper">
         <iframe id="frame1" src="https://poke.idleworld.online/login"></iframe>
       </div>
     </div>
 
     <div class="panel" id="panel2">
-      <div class="panel-bar">
-        <input type="text" id="url2" value="https://poke.idleworld.online/login">
-        <button class="btn btn-sm" onclick="carregar(2)">Ir</button>
-        <button class="btn btn-secondary btn-sm" onclick="recarregar(2)">🔄</button>
-      </div>
+      <button class="btn-fullscreen" onclick="toggleFullscreen(2)" id="btnFull2">🗖 Tela Cheia</button>
       <div class="iframe-wrapper">
         <iframe id="frame2" src="https://poke.idleworld.online/login"></iframe>
       </div>
     </div>
 
     <div class="panel" id="panel3">
-      <div class="panel-bar">
-        <input type="text" id="url3" value="https://poke.idleworld.online/login">
-        <button class="btn btn-sm" onclick="carregar(3)">Ir</button>
-        <button class="btn btn-secondary btn-sm" onclick="recarregar(3)">🔄</button>
-      </div>
+      <button class="btn-fullscreen" onclick="toggleFullscreen(3)" id="btnFull3">🗖 Tela Cheia</button>
       <div class="iframe-wrapper">
         <iframe id="frame3" src="https://poke.idleworld.online/login"></iframe>
       </div>
     </div>
 
     <div class="panel" id="panel4">
-      <div class="panel-bar">
-        <input type="text" id="url4" value="https://poke.idleworld.online/login">
-        <button class="btn btn-sm" onclick="carregar(4)">Ir</button>
-        <button class="btn btn-secondary btn-sm" onclick="recarregar(4)">🔄</button>
-      </div>
+      <button class="btn-fullscreen" onclick="toggleFullscreen(4)" id="btnFull4">🗖 Tela Cheia</button>
       <div class="iframe-wrapper">
         <iframe id="frame4" src="https://poke.idleworld.online/login"></iframe>
       </div>
     </div>
+
   </div>
 
   <script>
@@ -220,29 +216,17 @@
       return url;
     }
 
-    function carregar(id) {
-      const input = document.getElementById('url' + id);
-      const frame = document.getElementById('frame' + id);
-      input.value = formatarUrl(input.value);
-      frame.src = input.value;
-    }
-
-    function recarregar(id) {
-      const frame = document.getElementById('frame' + id);
-      frame.src = frame.src;
-    }
-
     function carregarTodas() {
       const urlGlobal = formatarUrl(document.getElementById('globalUrl').value);
       for (let i = 1; i <= 4; i++) {
-        document.getElementById('url' + i).value = urlGlobal;
         document.getElementById('frame' + i).src = urlGlobal;
       }
     }
 
     function recarregarTodas() {
       for (let i = 1; i <= 4; i++) {
-        recarregar(i);
+        const frame = document.getElementById('frame' + i);
+        frame.src = frame.src;
       }
     }
 
@@ -250,7 +234,13 @@
       const grid = document.getElementById('grid');
       const qtdInt = parseInt(qtd, 10);
 
-      // Mostra ou esconde os painéis conforme a opção selecionada
+      // Garante que se alguma tela estiver em fullscreen, reseta antes de mudar de modo
+      for (let i = 1; i <= 4; i++) {
+        const panel = document.getElementById('panel' + i);
+        panel.classList.remove('fullscreen');
+        document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
+      }
+
       for (let i = 1; i <= 4; i++) {
         const panel = document.getElementById('panel' + i);
         if (i <= qtdInt) {
@@ -260,19 +250,35 @@
         }
       }
 
-      // Reorganização do Grid
       if (qtdInt === 1) {
-        // 1 Tela cheia
         grid.style.gridTemplateColumns = '1fr';
         grid.style.gridTemplateRows = '1fr';
       } else if (qtdInt === 2) {
-        // 2 Telas divididas lado a lado (2 colunas horizontais)
         grid.style.gridTemplateColumns = '1fr 1fr';
         grid.style.gridTemplateRows = '1fr';
       } else if (qtdInt === 4) {
-        // 4 Telas divididas em 4 Quadrados (2x2)
         grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
         grid.style.gridTemplateRows = 'repeat(2, 1fr)';
+      }
+    }
+
+    function toggleFullscreen(id) {
+      const panel = document.getElementById('panel' + id);
+      const btn = document.getElementById('btnFull' + id);
+
+      if (panel.classList.contains('fullscreen')) {
+        // Restaurar organização inicial
+        panel.classList.remove('fullscreen');
+        btn.innerText = "🗖 Tela Cheia";
+      } else {
+        // Expandir para Tela Cheia
+        // Remove fullscreen de outras telas caso esteja ativo
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById('panel' + i).classList.remove('fullscreen');
+          document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
+        }
+        panel.classList.add('fullscreen');
+        btn.innerText = "🗗 Restaurar Layout";
       }
     }
   </script>
