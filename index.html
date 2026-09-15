@@ -106,7 +106,7 @@
       display: none !important;
     }
 
-    /* Estilo para quando um painel entra em Tela Cheia (Maximizada) */
+    /* Estilo para quando um painel entra em Tela Cheia */
     .panel.fullscreen {
       position: absolute;
       top: 0;
@@ -118,12 +118,21 @@
       border-radius: 0;
     }
 
-    /* Botão flutuante de Maximizar/Restaurar */
-    .btn-fullscreen {
+    /* Grupo de Botões Flutuantes dos Painéis */
+    .panel-actions {
       position: absolute;
       top: 6px;
       right: 6px;
       z-index: 20;
+      display: flex;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 3px;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-ctrl {
       background: rgba(0, 0, 0, 0.6);
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.3);
@@ -131,11 +140,10 @@
       border-radius: 4px;
       font-size: 11px;
       cursor: pointer;
-      backdrop-filter: blur(2px);
       transition: background 0.2s;
     }
 
-    .btn-fullscreen:hover {
+    .btn-ctrl:hover {
       background: rgba(0, 102, 204, 0.8);
       border-color: #0066cc;
     }
@@ -162,7 +170,7 @@
 <body>
 
   <div class="top-bar">
-    <input type="text" id="globalUrl" value="https://poke.idleworld.online/login" placeholder="Digite uma URL para todas...">
+    <input type="text" id="globalUrl" value="https://poke.idleworld.online/login" placeholder="Digite uma URL global para todas...">
     
     <select id="screenSelect" onchange="alterarQuantidadeTelas(this.value)">
       <option value="1">1 Tela</option>
@@ -178,37 +186,63 @@
 
   <div class="grid-container" id="grid">
     
+    <!-- Tela 1 -->
     <div class="panel" id="panel1">
-      <button class="btn-fullscreen" onclick="toggleFullscreen(1)" id="btnFull1">🗖 Tela Cheia</button>
+      <div class="panel-actions">
+        <button class="btn-ctrl" onclick="alterarUrlSlot(1)" title="Editar URL deste slot">🔗 Link</button>
+        <button class="btn-ctrl" onclick="recarregar(1)" title="Recarregar esta tela">🔄</button>
+        <button class="btn-ctrl" onclick="toggleMute(1)" id="btnMute1">🔊</button>
+        <button class="btn-ctrl" onclick="toggleFullscreen(1)" id="btnFull1">🗖 Tela Cheia</button>
+      </div>
       <div class="iframe-wrapper">
-        <iframe id="frame1" src="https://poke.idleworld.online/login"></iframe>
+        <iframe id="frame1" src="about:blank"></iframe>
       </div>
     </div>
 
+    <!-- Tela 2 -->
     <div class="panel" id="panel2">
-      <button class="btn-fullscreen" onclick="toggleFullscreen(2)" id="btnFull2">🗖 Tela Cheia</button>
+      <div class="panel-actions">
+        <button class="btn-ctrl" onclick="alterarUrlSlot(2)" title="Editar URL deste slot">🔗 Link</button>
+        <button class="btn-ctrl" onclick="recarregar(2)" title="Recarregar esta tela">🔄</button>
+        <button class="btn-ctrl" onclick="toggleMute(2)" id="btnMute2">🔊</button>
+        <button class="btn-ctrl" onclick="toggleFullscreen(2)" id="btnFull2">🗖 Tela Cheia</button>
+      </div>
       <div class="iframe-wrapper">
-        <iframe id="frame2" src="https://poke.idleworld.online/login"></iframe>
+        <iframe id="frame2" src="about:blank"></iframe>
       </div>
     </div>
 
+    <!-- Tela 3 -->
     <div class="panel" id="panel3">
-      <button class="btn-fullscreen" onclick="toggleFullscreen(3)" id="btnFull3">🗖 Tela Cheia</button>
+      <div class="panel-actions">
+        <button class="btn-ctrl" onclick="alterarUrlSlot(3)" title="Editar URL deste slot">🔗 Link</button>
+        <button class="btn-ctrl" onclick="recarregar(3)" title="Recarregar esta tela">🔄</button>
+        <button class="btn-ctrl" onclick="toggleMute(3)" id="btnMute3">🔊</button>
+        <button class="btn-ctrl" onclick="toggleFullscreen(3)" id="btnFull3">🗖 Tela Cheia</button>
+      </div>
       <div class="iframe-wrapper">
-        <iframe id="frame3" src="https://poke.idleworld.online/login"></iframe>
+        <iframe id="frame3" src="about:blank"></iframe>
       </div>
     </div>
 
+    <!-- Tela 4 -->
     <div class="panel" id="panel4">
-      <button class="btn-fullscreen" onclick="toggleFullscreen(4)" id="btnFull4">🗖 Tela Cheia</button>
+      <div class="panel-actions">
+        <button class="btn-ctrl" onclick="alterarUrlSlot(4)" title="Editar URL deste slot">🔗 Link</button>
+        <button class="btn-ctrl" onclick="recarregar(4)" title="Recarregar esta tela">🔄</button>
+        <button class="btn-ctrl" onclick="toggleMute(4)" id="btnMute4">🔊</button>
+        <button class="btn-ctrl" onclick="toggleFullscreen(4)" id="btnFull4">🗖 Tela Cheia</button>
+      </div>
       <div class="iframe-wrapper">
-        <iframe id="frame4" src="https://poke.idleworld.online/login"></iframe>
+        <iframe id="frame4" src="about:blank"></iframe>
       </div>
     </div>
 
   </div>
 
   <script>
+    const URL_PADRAO = 'https://poke.idleworld.online/login';
+
     function formatarUrl(url) {
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         return 'https://' + url;
@@ -216,25 +250,47 @@
       return url;
     }
 
+    // Carrega uma nova URL em um slot específico e salva no localStorage
+    function carregarSlot(id, url) {
+      const urlFormatada = formatarUrl(url);
+      document.getElementById('frame' + id).src = urlFormatada;
+      localStorage.setItem('saved_slot_' + id, urlFormatada);
+    }
+
+    // Prompt simples para trocar a URL de um único slot
+    function alterarUrlSlot(id) {
+      const urlAtual = localStorage.getItem('saved_slot_' + id) || URL_PADRAO;
+      const novaUrl = prompt(`Digite a URL para o Slot ${id}:`, urlAtual);
+      if (novaUrl && novaUrl.trim() !== '') {
+        carregarSlot(id, novaUrl.trim());
+      }
+    }
+
+    // Aplica a URL global a todas as telas
     function carregarTodas() {
       const urlGlobal = formatarUrl(document.getElementById('globalUrl').value);
+      localStorage.setItem('saved_global_url', urlGlobal);
       for (let i = 1; i <= 4; i++) {
-        document.getElementById('frame' + i).src = urlGlobal;
+        carregarSlot(i, urlGlobal);
       }
+    }
+
+    function recarregar(id) {
+      const frame = document.getElementById('frame' + id);
+      frame.src = frame.src;
     }
 
     function recarregarTodas() {
       for (let i = 1; i <= 4; i++) {
-        const frame = document.getElementById('frame' + i);
-        frame.src = frame.src;
+        recarregar(i);
       }
     }
 
     function alterarQuantidadeTelas(qtd) {
       const grid = document.getElementById('grid');
       const qtdInt = parseInt(qtd, 10);
+      localStorage.setItem('saved_qtd', qtd);
 
-      // Garante que se alguma tela estiver em fullscreen, reseta antes de mudar de modo
       for (let i = 1; i <= 4; i++) {
         const panel = document.getElementById('panel' + i);
         panel.classList.remove('fullscreen');
@@ -267,12 +323,9 @@
       const btn = document.getElementById('btnFull' + id);
 
       if (panel.classList.contains('fullscreen')) {
-        // Restaurar organização inicial
         panel.classList.remove('fullscreen');
         btn.innerText = "🗖 Tela Cheia";
       } else {
-        // Expandir para Tela Cheia
-        // Remove fullscreen de outras telas caso esteja ativo
         for (let i = 1; i <= 4; i++) {
           document.getElementById('panel' + i).classList.remove('fullscreen');
           document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
@@ -281,6 +334,46 @@
         btn.innerText = "🗗 Restaurar Layout";
       }
     }
+
+    function toggleMute(id) {
+      const frame = document.getElementById('frame' + id);
+      const btn = document.getElementById('btnMute' + id);
+
+      if (frame.hasAttribute('muted')) {
+        frame.removeAttribute('muted');
+        btn.innerText = "🔊";
+      } else {
+        frame.setAttribute('muted', 'true');
+        btn.innerText = "🔇";
+      }
+    }
+
+    // Restauração Automática das Configurações e URLs
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Restaura a quantidade de telas selecionada
+      const savedQtd = localStorage.getItem('saved_qtd');
+      if (savedQtd) {
+        document.getElementById('screenSelect').value = savedQtd;
+        alterarQuantidadeTelas(savedQtd);
+      }
+
+      // 2. Restaura a URL do campo global
+      const savedGlobal = localStorage.getItem('saved_global_url');
+      if (savedGlobal) {
+        document.getElementById('globalUrl').value = savedGlobal;
+      }
+
+      // 3. Restaura as URLs específicas de cada Slot
+      for (let i = 1; i <= 4; i++) {
+        const savedSlotUrl = localStorage.getItem('saved_slot_' + i);
+        if (savedSlotUrl) {
+          document.getElementById('frame' + i).src = savedSlotUrl;
+        } else {
+          // Se não houver nada salvo para o slot, usa o padrão
+          carregarSlot(i, URL_PADRAO);
+        }
+      }
+    });
   </script>
 </body>
 </html>
