@@ -101,10 +101,12 @@
       position: relative;
     }
 
+    /* Ocultar painéis inativos */
     .panel.hidden {
       display: none !important;
     }
 
+    /* Estilo para quando um painel entra em Tela Cheia (Maximizada) */
     .panel.fullscreen {
       position: absolute;
       top: 0;
@@ -116,41 +118,12 @@
       border-radius: 0;
     }
 
-    /* Bar com Controles de Auto Click e Fullscreen */
-    .panel-controls {
+    /* Botão flutuante de Maximizar/Restaurar */
+    .btn-fullscreen {
       position: absolute;
       top: 6px;
-      left: 6px;
       right: 6px;
       z-index: 20;
-      display: flex;
-      justify-content: space-between;
-      pointer-events: none;
-    }
-
-    .autoclick-bar {
-      display: flex;
-      gap: 4px;
-      background: rgba(0, 0, 0, 0.75);
-      padding: 4px 6px;
-      border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      pointer-events: auto;
-      align-items: center;
-    }
-
-    .autoclick-bar input {
-      width: 45px;
-      background: #222;
-      border: 1px solid #444;
-      color: #fff;
-      font-size: 10px;
-      padding: 2px 4px;
-      border-radius: 2px;
-      text-align: center;
-    }
-
-    .btn-ctrl {
       background: rgba(0, 0, 0, 0.6);
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.3);
@@ -159,45 +132,15 @@
       font-size: 11px;
       cursor: pointer;
       backdrop-filter: blur(2px);
-      pointer-events: auto;
+      transition: background 0.2s;
     }
 
-    .btn-ctrl:hover {
+    .btn-fullscreen:hover {
       background: rgba(0, 102, 204, 0.8);
       border-color: #0066cc;
     }
 
-    .btn-active {
-      background: #28a745 !important;
-      border-color: #1e7e34 !important;
-    }
-
-    /* Overlay para Captura e Execução de Cliques */
-    .click-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 15;
-      display: none;
-      cursor: crosshair;
-      background: rgba(0, 102, 204, 0.15);
-    }
-
-    .click-target-marker {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #ff0000;
-      border-radius: 50%;
-      background: rgba(255, 0, 0, 0.4);
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 18;
-      display: none;
-    }
-
+    /* Wrapper do iframe para renderização inteira */
     .iframe-wrapper {
       flex: 1;
       width: 100%;
@@ -235,73 +178,29 @@
 
   <div class="grid-container" id="grid">
     
-    <!-- Tela 1 -->
     <div class="panel" id="panel1">
-      <div class="panel-controls">
-        <div class="autoclick-bar">
-          <button class="btn-ctrl" id="btnTarget1" onclick="definirAlvo(1)">🎯 Alvo</button>
-          <input type="number" id="freq1" value="1" min="0.1" step="0.5" title="Intervalo em segundos">
-          <span style="font-size: 10px;">s</span>
-          <button class="btn-ctrl" id="btnStart1" onclick="toggleAutoClick(1)">▶ Auto</button>
-        </div>
-        <button class="btn-ctrl" onclick="toggleFullscreen(1)" id="btnFull1">🗖 Tela Cheia</button>
-      </div>
-      <div class="click-overlay" id="overlay1" onclick="marcarAlvo(event, 1)"></div>
-      <div class="click-target-marker" id="marker1"></div>
+      <button class="btn-fullscreen" onclick="toggleFullscreen(1)" id="btnFull1">🗖 Tela Cheia</button>
       <div class="iframe-wrapper">
         <iframe id="frame1" src="https://poke.idleworld.online/login"></iframe>
       </div>
     </div>
 
-    <!-- Tela 2 -->
     <div class="panel" id="panel2">
-      <div class="panel-controls">
-        <div class="autoclick-bar">
-          <button class="btn-ctrl" id="btnTarget2" onclick="definirAlvo(2)">🎯 Alvo</button>
-          <input type="number" id="freq2" value="1" min="0.1" step="0.5" title="Intervalo em segundos">
-          <span style="font-size: 10px;">s</span>
-          <button class="btn-ctrl" id="btnStart2" onclick="toggleAutoClick(2)">▶ Auto</button>
-        </div>
-        <button class="btn-ctrl" onclick="toggleFullscreen(2)" id="btnFull2">🗖 Tela Cheia</button>
-      </div>
-      <div class="click-overlay" id="overlay2" onclick="marcarAlvo(event, 2)"></div>
-      <div class="click-target-marker" id="marker2"></div>
+      <button class="btn-fullscreen" onclick="toggleFullscreen(2)" id="btnFull2">🗖 Tela Cheia</button>
       <div class="iframe-wrapper">
         <iframe id="frame2" src="https://poke.idleworld.online/login"></iframe>
       </div>
     </div>
 
-    <!-- Tela 3 -->
     <div class="panel" id="panel3">
-      <div class="panel-controls">
-        <div class="autoclick-bar">
-          <button class="btn-ctrl" id="btnTarget3" onclick="definirAlvo(3)">🎯 Alvo</button>
-          <input type="number" id="freq3" value="1" min="0.1" step="0.5" title="Intervalo em segundos">
-          <span style="font-size: 10px;">s</span>
-          <button class="btn-ctrl" id="btnStart3" onclick="toggleAutoClick(3)">▶ Auto</button>
-        </div>
-        <button class="btn-ctrl" onclick="toggleFullscreen(3)" id="btnFull3">🗖 Tela Cheia</button>
-      </div>
-      <div class="click-overlay" id="overlay3" onclick="marcarAlvo(event, 3)"></div>
-      <div class="click-target-marker" id="marker3"></div>
+      <button class="btn-fullscreen" onclick="toggleFullscreen(3)" id="btnFull3">🗖 Tela Cheia</button>
       <div class="iframe-wrapper">
         <iframe id="frame3" src="https://poke.idleworld.online/login"></iframe>
       </div>
     </div>
 
-    <!-- Tela 4 -->
     <div class="panel" id="panel4">
-      <div class="panel-controls">
-        <div class="autoclick-bar">
-          <button class="btn-ctrl" id="btnTarget4" onclick="definirAlvo(4)">🎯 Alvo</button>
-          <input type="number" id="freq4" value="1" min="0.1" step="0.5" title="Intervalo em segundos">
-          <span style="font-size: 10px;">s</span>
-          <button class="btn-ctrl" id="btnStart4" onclick="toggleAutoClick(4)">▶ Auto</button>
-        </div>
-        <button class="btn-ctrl" onclick="toggleFullscreen(4)" id="btnFull4">🗖 Tela Cheia</button>
-      </div>
-      <div class="click-overlay" id="overlay4" onclick="marcarAlvo(event, 4)"></div>
-      <div class="click-target-marker" id="marker4"></div>
+      <button class="btn-fullscreen" onclick="toggleFullscreen(4)" id="btnFull4">🗖 Tela Cheia</button>
       <div class="iframe-wrapper">
         <iframe id="frame4" src="https://poke.idleworld.online/login"></iframe>
       </div>
@@ -310,14 +209,6 @@
   </div>
 
   <script>
-    // Armazena as coordenadas e intervalos independentes de cada tela
-    const autoClickers = {
-      1: { x: null, y: null, interval: null, running: false },
-      2: { x: null, y: null, interval: null, running: false },
-      3: { x: null, y: null, interval: null, running: false },
-      4: { x: null, y: null, interval: null, running: false }
-    };
-
     function formatarUrl(url) {
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         return 'https://' + url;
@@ -343,6 +234,7 @@
       const grid = document.getElementById('grid');
       const qtdInt = parseInt(qtd, 10);
 
+      // Garante que se alguma tela estiver em fullscreen, reseta antes de mudar de modo
       for (let i = 1; i <= 4; i++) {
         const panel = document.getElementById('panel' + i);
         panel.classList.remove('fullscreen');
@@ -355,7 +247,6 @@
           panel.classList.remove('hidden');
         } else {
           panel.classList.add('hidden');
-          pararAutoClick(i);
         }
       }
 
@@ -376,9 +267,12 @@
       const btn = document.getElementById('btnFull' + id);
 
       if (panel.classList.contains('fullscreen')) {
+        // Restaurar organização inicial
         panel.classList.remove('fullscreen');
         btn.innerText = "🗖 Tela Cheia";
       } else {
+        // Expandir para Tela Cheia
+        // Remove fullscreen de outras telas caso esteja ativo
         for (let i = 1; i <= 4; i++) {
           document.getElementById('panel' + i).classList.remove('fullscreen');
           document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
@@ -386,122 +280,6 @@
         panel.classList.add('fullscreen');
         btn.innerText = "🗗 Restaurar Layout";
       }
-    }
-
-    // LÓGICA DO AUTO CLICKER INDIVIDUAL
-
-    function definirAlvo(id) {
-      const overlay = document.getElementById('overlay' + id);
-      overlay.style.display = 'block';
-    }
-
-    function marcarAlvo(event, id) {
-      const overlay = document.getElementById('overlay' + id);
-      const marker = document.getElementById('marker' + id);
-      const rect = overlay.getBoundingClientRect();
-
-      // Armazena as coordenadas do clique relativas ao painel
-      autoClickers[id].x = event.clientX - rect.left;
-      autoClickers[id].y = event.clientY - rect.top;
-
-      // Posiciona a mira visual no local selecionado
-      marker.style.left = autoClickers[id].x + 'px';
-      marker.style.top = autoClickers[id].y + 'px';
-      marker.style.display = 'block';
-
-      // Oculta o overlay interativo para voltar a acessar o jogo normalmente
-      overlay.style.display = 'none';
-    }
-
-    function toggleAutoClick(id) {
-      const state = autoClickers[id];
-      if (state.running) {
-        pararAutoClick(id);
-      } else {
-        iniciarAutoClick(id);
-      }
-    }
-
-    function iniciarAutoClick(id) {
-      const state = autoClickers[id];
-
-      if (state.x === null || state.y === null) {
-        alert('Defina o alvo clicando em "🎯 Alvo" primeiro.');
-        return;
-      }
-
-      const freqInput = document.getElementById('freq' + id);
-      const tempoMs = parseFloat(freqInput.value) * 1000;
-
-      if (isNaN(tempoMs) || tempoMs < 100) {
-        alert('Defina um tempo válido igual ou superior a 0.1s.');
-        return;
-      }
-
-      state.running = true;
-      const btnStart = document.getElementById('btnStart' + id);
-      btnStart.innerText = '⏸ Parar';
-      btnStart.classList.add('btn-active');
-
-      // Executa o disparo inicial e agenda a repetição
-      dispararClique(id);
-      state.interval = setInterval(() => dispararClique(id), tempoMs);
-    }
-
-    function pararAutoClick(id) {
-      const state = autoClickers[id];
-      if (state.interval) {
-        clearInterval(state.interval);
-        state.interval = null;
-      }
-      state.running = false;
-
-      const btnStart = document.getElementById('btnStart' + id);
-      if (btnStart) {
-        btnStart.innerText = '▶ Auto';
-        btnStart.classList.remove('btn-active');
-      }
-    }
-
-    function dispararClique(id) {
-      const state = autoClickers[id];
-      if (state.x === null || state.y === null) return;
-
-      const panel = document.getElementById('panel' + id);
-      
-      // Simula a animação visual de clique na posição do alvo
-      const clickRipple = document.createElement('div');
-      clickRipple.style.position = 'absolute';
-      clickRipple.style.left = state.x + 'px';
-      clickRipple.style.top = state.y + 'px';
-      clickRipple.style.width = '20px';
-      clickRipple.style.height = '20px';
-      clickRipple.style.borderRadius = '50%';
-      clickRipple.style.border = '2px solid #00ff00';
-      clickRipple.style.transform = 'translate(-50%, -50%)';
-      clickRipple.style.pointerEvents = 'none';
-      clickRipple.style.zIndex = '30';
-      
-      panel.appendChild(clickRipple);
-
-      // Dispara os eventos padrão de Pointer/Mouse na coordenada indicada
-      const targetElement = document.elementFromPoint(
-        panel.getBoundingClientRect().left + state.x,
-        panel.getBoundingClientRect().top + state.y
-      ) || panel;
-
-      targetElement.dispatchEvent(new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true,
-        clientX: panel.getBoundingClientRect().left + state.x,
-        clientY: panel.getBoundingClientRect().top + state.y
-      }));
-
-      setTimeout(() => {
-        if (clickRipple.parentNode) {
-          clickRipple.parentNode.removeChild(clickRipple);
-        }
-      }, 300);
     }
   </script>
 </body>
