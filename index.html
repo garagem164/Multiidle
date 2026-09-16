@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multi-Idle Browser</title>
+  <title>Multi-Idle Browser Pro</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -76,7 +76,7 @@
     .btn-secondary { background: #333; border: 1px solid #555; }
     .btn-secondary:hover { background: #444; }
 
-    /* Grid Responsivo das Telas */
+    /* Grid Container */
     .grid-container {
       display: grid;
       flex: 1;
@@ -84,10 +84,15 @@
       padding: 4px;
       width: 100%;
       height: 100%;
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(2, 1fr);
       position: relative;
+      overflow: hidden;
     }
+
+    /* Modos Normais de Quantidade */
+    .grid-container.qtd-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+    .grid-container.qtd-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+    .grid-container.qtd-3 { grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr; }
+    .grid-container.qtd-4 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
 
     .panel {
       display: flex;
@@ -99,14 +104,36 @@
       min-width: 0;
       min-height: 0;
       position: relative;
+      transition: border-color 0.2s;
     }
 
-    /* Ocultar painéis inativos */
     .panel.hidden {
       display: none !important;
     }
 
-    /* Estilo para quando um painel entra em Tela Cheia */
+    /* Modo Destaque via CSS Grid sem alterar o DOM */
+    .grid-container.has-focus {
+      grid-template-rows: 4fr 1fr !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    .grid-container.has-focus.qtd-2 {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* O painel em destaque ocupa o topo inteiro */
+    .grid-container.has-focus .panel.focus-target {
+      grid-row: 1 / 2;
+      grid-column: 1 / -1;
+      border: 2px solid #0066cc;
+    }
+
+    /* Painéis inativos são empurrados para a linha de baixo (Row 2) */
+    .grid-container.has-focus .panel:not(.focus-target) {
+      grid-row: 2 / 3;
+    }
+
+    /* Tela Cheia Absoluta */
     .panel.fullscreen {
       position: absolute;
       top: 0;
@@ -148,22 +175,25 @@
       border-color: #0066cc;
     }
 
-    /* Wrapper do iframe para renderização inteira */
+    /* Wrapper e Redimensionador de Renderização */
     .iframe-wrapper {
       flex: 1;
       width: 100%;
       height: 100%;
       position: relative;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     iframe {
-      width: 150%;
-      height: 150%;
+      width: 1280px;
+      height: 720px;
       border: none;
       background: #fff;
-      transform: scale(0.6666);
-      transform-origin: 0 0;
+      position: absolute;
+      transform-origin: center center;
     }
   </style>
 </head>
@@ -175,26 +205,29 @@
     <select id="screenSelect" onchange="alterarQuantidadeTelas(this.value)">
       <option value="1">1 Tela</option>
       <option value="2">2 Telas</option>
+      <option value="3">3 Telas</option>
       <option value="4" selected>4 Telas</option>
     </select>
 
     <div class="btn-group">
       <button class="btn" onclick="carregarTodas()">Abrir em Todas</button>
+      <button class="btn btn-secondary" onclick="resetarLayout()">⚖️ Igualar</button>
       <button class="btn btn-secondary" onclick="recarregarTodas()">🔄 Recarregar</button>
     </div>
   </div>
 
-  <div class="grid-container" id="grid">
+  <div class="grid-container qtd-4" id="grid">
     
     <!-- Tela 1 -->
     <div class="panel" id="panel1">
       <div class="panel-actions">
+        <button class="btn-ctrl" onclick="destacarTela(1)" title="Destacar no topo">🔍 Destaque</button>
         <button class="btn-ctrl" onclick="alterarUrlSlot(1)" title="Editar URL deste slot">🔗 Link</button>
         <button class="btn-ctrl" onclick="recarregar(1)" title="Recarregar esta tela">🔄</button>
         <button class="btn-ctrl" onclick="toggleMute(1)" id="btnMute1">🔊</button>
         <button class="btn-ctrl" onclick="toggleFullscreen(1)" id="btnFull1">🗖 Tela Cheia</button>
       </div>
-      <div class="iframe-wrapper">
+      <div class="iframe-wrapper" id="wrapper1">
         <iframe id="frame1" src="about:blank"></iframe>
       </div>
     </div>
@@ -202,12 +235,13 @@
     <!-- Tela 2 -->
     <div class="panel" id="panel2">
       <div class="panel-actions">
+        <button class="btn-ctrl" onclick="destacarTela(2)" title="Destacar no topo">🔍 Destaque</button>
         <button class="btn-ctrl" onclick="alterarUrlSlot(2)" title="Editar URL deste slot">🔗 Link</button>
         <button class="btn-ctrl" onclick="recarregar(2)" title="Recarregar esta tela">🔄</button>
         <button class="btn-ctrl" onclick="toggleMute(2)" id="btnMute2">🔊</button>
         <button class="btn-ctrl" onclick="toggleFullscreen(2)" id="btnFull2">🗖 Tela Cheia</button>
       </div>
-      <div class="iframe-wrapper">
+      <div class="iframe-wrapper" id="wrapper2">
         <iframe id="frame2" src="about:blank"></iframe>
       </div>
     </div>
@@ -215,12 +249,13 @@
     <!-- Tela 3 -->
     <div class="panel" id="panel3">
       <div class="panel-actions">
+        <button class="btn-ctrl" onclick="destacarTela(3)" title="Destacar no topo">🔍 Destaque</button>
         <button class="btn-ctrl" onclick="alterarUrlSlot(3)" title="Editar URL deste slot">🔗 Link</button>
         <button class="btn-ctrl" onclick="recarregar(3)" title="Recarregar esta tela">🔄</button>
         <button class="btn-ctrl" onclick="toggleMute(3)" id="btnMute3">🔊</button>
         <button class="btn-ctrl" onclick="toggleFullscreen(3)" id="btnFull3">🗖 Tela Cheia</button>
       </div>
-      <div class="iframe-wrapper">
+      <div class="iframe-wrapper" id="wrapper3">
         <iframe id="frame3" src="about:blank"></iframe>
       </div>
     </div>
@@ -228,12 +263,13 @@
     <!-- Tela 4 -->
     <div class="panel" id="panel4">
       <div class="panel-actions">
+        <button class="btn-ctrl" onclick="destacarTela(4)" title="Destacar no topo">🔍 Destaque</button>
         <button class="btn-ctrl" onclick="alterarUrlSlot(4)" title="Editar URL deste slot">🔗 Link</button>
         <button class="btn-ctrl" onclick="recarregar(4)" title="Recarregar esta tela">🔄</button>
         <button class="btn-ctrl" onclick="toggleMute(4)" id="btnMute4">🔊</button>
         <button class="btn-ctrl" onclick="toggleFullscreen(4)" id="btnFull4">🗖 Tela Cheia</button>
       </div>
-      <div class="iframe-wrapper">
+      <div class="iframe-wrapper" id="wrapper4">
         <iframe id="frame4" src="about:blank"></iframe>
       </div>
     </div>
@@ -250,14 +286,12 @@
       return url;
     }
 
-    // Carrega uma nova URL em um slot específico e salva no localStorage
     function carregarSlot(id, url) {
       const urlFormatada = formatarUrl(url);
       document.getElementById('frame' + id).src = urlFormatada;
       localStorage.setItem('saved_slot_' + id, urlFormatada);
     }
 
-    // Prompt simples para trocar a URL de um único slot
     function alterarUrlSlot(id) {
       const urlAtual = localStorage.getItem('saved_slot_' + id) || URL_PADRAO;
       const novaUrl = prompt(`Digite a URL para o Slot ${id}:`, urlAtual);
@@ -266,7 +300,6 @@
       }
     }
 
-    // Aplica a URL global a todas as telas
     function carregarTodas() {
       const urlGlobal = formatarUrl(document.getElementById('globalUrl').value);
       localStorage.setItem('saved_global_url', urlGlobal);
@@ -291,11 +324,9 @@
       const qtdInt = parseInt(qtd, 10);
       localStorage.setItem('saved_qtd', qtd);
 
-      for (let i = 1; i <= 4; i++) {
-        const panel = document.getElementById('panel' + i);
-        panel.classList.remove('fullscreen');
-        document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
-      }
+      resetarLayout();
+
+      grid.className = `grid-container qtd-${qtd}`;
 
       for (let i = 1; i <= 4; i++) {
         const panel = document.getElementById('panel' + i);
@@ -306,16 +337,44 @@
         }
       }
 
-      if (qtdInt === 1) {
-        grid.style.gridTemplateColumns = '1fr';
-        grid.style.gridTemplateRows = '1fr';
-      } else if (qtdInt === 2) {
-        grid.style.gridTemplateColumns = '1fr 1fr';
-        grid.style.gridTemplateRows = '1fr';
-      } else if (qtdInt === 4) {
-        grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
-        grid.style.gridTemplateRows = 'repeat(2, 1fr)';
+      setTimeout(autoAjustarEscala, 150);
+    }
+
+    function destacarTela(idTarget) {
+      const grid = document.getElementById('grid');
+
+      // Limpa tela cheia se houver
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById('panel' + i).classList.remove('fullscreen');
+        document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
       }
+
+      grid.classList.add('has-focus');
+
+      for (let i = 1; i <= 4; i++) {
+        const panel = document.getElementById('panel' + i);
+        if (i === idTarget) {
+          panel.classList.add('focus-target');
+        } else {
+          panel.classList.remove('focus-target');
+        }
+      }
+
+      setTimeout(autoAjustarEscala, 150);
+    }
+
+    function resetarLayout() {
+      const grid = document.getElementById('grid');
+      grid.classList.remove('has-focus');
+
+      for (let i = 1; i <= 4; i++) {
+        const panel = document.getElementById('panel' + i);
+        panel.classList.remove('focus-target');
+        panel.classList.remove('fullscreen');
+        document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
+      }
+
+      setTimeout(autoAjustarEscala, 150);
     }
 
     function toggleFullscreen(id) {
@@ -326,13 +385,12 @@
         panel.classList.remove('fullscreen');
         btn.innerText = "🗖 Tela Cheia";
       } else {
-        for (let i = 1; i <= 4; i++) {
-          document.getElementById('panel' + i).classList.remove('fullscreen');
-          document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
-        }
+        resetarLayout();
         panel.classList.add('fullscreen');
         btn.innerText = "🗗 Restaurar Layout";
       }
+
+      setTimeout(autoAjustarEscala, 150);
     }
 
     function toggleMute(id) {
@@ -348,32 +406,49 @@
       }
     }
 
-    // Restauração Automática das Configurações e URLs
-    window.addEventListener('DOMContentLoaded', () => {
-      // 1. Restaura a quantidade de telas selecionada
-      const savedQtd = localStorage.getItem('saved_qtd');
-      if (savedQtd) {
-        document.getElementById('screenSelect').value = savedQtd;
-        alterarQuantidadeTelas(savedQtd);
-      }
+    // Calcula dinamicamente o zoom/escala para não cortar nada
+    function autoAjustarEscala() {
+      for (let i = 1; i <= 4; i++) {
+        const wrapper = document.getElementById('wrapper' + i);
+        const frame = document.getElementById('frame' + i);
 
-      // 2. Restaura a URL do campo global
+        if (wrapper && frame) {
+          const width = wrapper.clientWidth;
+          const height = wrapper.clientHeight;
+
+          if (width > 0 && height > 0) {
+            const scaleX = width / 1280;
+            const scaleY = height / 720;
+            const scale = Math.min(scaleX, scaleY);
+            frame.style.transform = `scale(${scale})`;
+          }
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedQtd = localStorage.getItem('saved_qtd') || '4';
+      document.getElementById('screenSelect').value = savedQtd;
+      alterarQuantidadeTelas(savedQtd);
+
       const savedGlobal = localStorage.getItem('saved_global_url');
       if (savedGlobal) {
         document.getElementById('globalUrl').value = savedGlobal;
       }
 
-      // 3. Restaura as URLs específicas de cada Slot
       for (let i = 1; i <= 4; i++) {
         const savedSlotUrl = localStorage.getItem('saved_slot_' + i);
         if (savedSlotUrl) {
           document.getElementById('frame' + i).src = savedSlotUrl;
         } else {
-          // Se não houver nada salvo para o slot, usa o padrão
           carregarSlot(i, URL_PADRAO);
         }
       }
+
+      autoAjustarEscala();
     });
+
+    window.addEventListener('resize', autoAjustarEscala);
   </script>
 </body>
 </html>
