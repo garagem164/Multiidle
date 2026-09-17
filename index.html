@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multi-Idle Browser Pro</title>
+  <title>Multi-Idle Lite Pro</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
       width: 100%;
       height: 100%;
-      background-color: #121212;
+      background-color: #0d0d0d;
       color: #fff;
       font-family: system-ui, -apple-system, sans-serif;
       overflow: hidden;
@@ -21,34 +21,33 @@
       flex-direction: column;
     }
 
-    /* Barra de Ferramentas Superior */
+    /* Barra Superior Leve */
     .top-bar {
       display: flex;
       gap: 6px;
       padding: 6px 8px;
-      background-color: #1e1e1e;
-      border-bottom: 1px solid #333;
+      background-color: #181818;
+      border-bottom: 1px solid #2a2a2a;
       align-items: center;
       flex-wrap: wrap;
       z-index: 100;
     }
 
     .top-bar input {
-      flex: 1 1 180px;
-      background: #2b2b2b;
-      border: 1px solid #444;
+      flex: 1 1 160px;
+      background: #222;
+      border: 1px solid #333;
       color: #fff;
-      padding: 6px 10px;
+      padding: 5px 8px;
       border-radius: 4px;
       font-size: 12px;
-      min-width: 0;
     }
 
     .top-bar select {
-      background: #2b2b2b;
-      border: 1px solid #444;
+      background: #222;
+      border: 1px solid #333;
       color: #fff;
-      padding: 6px 8px;
+      padding: 5px 8px;
       border-radius: 4px;
       font-size: 12px;
       cursor: pointer;
@@ -56,15 +55,15 @@
 
     .btn-group {
       display: flex;
-      gap: 6px;
+      gap: 4px;
       flex-wrap: wrap;
     }
 
     .btn {
-      background: #0066cc;
+      background: #0055b3;
       color: white;
       border: none;
-      padding: 6px 10px;
+      padding: 5px 10px;
       border-radius: 4px;
       cursor: pointer;
       font-size: 12px;
@@ -72,11 +71,13 @@
       white-space: nowrap;
     }
 
-    .btn:hover { background: #0052a3; }
-    .btn-secondary { background: #333; border: 1px solid #555; }
-    .btn-secondary:hover { background: #444; }
+    .btn:hover { background: #004085; }
+    .btn-quick { background: #28a745; }
+    .btn-quick:hover { background: #1e7e34; }
+    .btn-secondary { background: #2a2a2a; border: 1px solid #444; }
+    .btn-secondary:hover { background: #383838; }
 
-    /* Grid Container */
+    /* Grid Layout */
     .grid-container {
       display: grid;
       flex: 1;
@@ -85,55 +86,45 @@
       width: 100%;
       height: 100%;
       position: relative;
-      overflow: hidden;
     }
 
-    /* Modos Normais de Quantidade */
     .grid-container.qtd-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
     .grid-container.qtd-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
     .grid-container.qtd-3 { grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr; }
-    .grid-container.qtd-4 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+    .grid-container.qtd-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 
     .panel {
       display: flex;
       flex-direction: column;
-      border: 1px solid #333;
+      border: 1px solid #222;
       border-radius: 4px;
       overflow: hidden;
       background: #000;
-      min-width: 0;
-      min-height: 0;
       position: relative;
-      transition: border-color 0.2s;
     }
 
     .panel.hidden {
       display: none !important;
     }
 
-    /* Modo Destaque via CSS Grid sem alterar o DOM */
+    /* Destaque Leve */
     .grid-container.has-focus {
-      grid-template-rows: 4fr 1fr !important;
+      grid-template-rows: 3fr 1fr !important;
       grid-template-columns: repeat(3, 1fr) !important;
     }
 
-    .grid-container.has-focus.qtd-2 {
-      grid-template-columns: 1fr !important;
-    }
+    .grid-container.has-focus.qtd-2 { grid-template-columns: 1fr !important; }
 
-    /* O painel em destaque ocupa o topo inteiro */
     .grid-container.has-focus .panel.focus-target {
       grid-row: 1 / 2;
       grid-column: 1 / -1;
-      border: 2px solid #0066cc;
+      border: 2px solid #0055b3;
     }
 
-    /* Painéis inativos são empurrados para a linha de baixo (Row 2) */
     .grid-container.has-focus .panel:not(.focus-target) {
       grid-row: 2 / 3;
     }
 
-    /* Tela Cheia Absoluta */
     .panel.fullscreen {
       position: absolute;
       top: 0;
@@ -141,66 +132,56 @@
       width: 100%;
       height: 100%;
       z-index: 50;
-      border: none;
-      border-radius: 0;
     }
 
-    /* Grupo de Botões Flutuantes dos Painéis */
+    /* Controles dos Painéis Otimizados (Sem blur) */
     .panel-actions {
       position: absolute;
-      top: 6px;
-      right: 6px;
+      top: 4px;
+      right: 4px;
       z-index: 20;
       display: flex;
-      gap: 4px;
-      background: rgba(0, 0, 0, 0.4);
+      gap: 3px;
+      background: rgba(0, 0, 0, 0.75);
       padding: 3px;
-      border-radius: 6px;
-      backdrop-filter: blur(4px);
+      border-radius: 4px;
     }
 
     .btn-ctrl {
-      background: rgba(0, 0, 0, 0.6);
+      background: #111;
       color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
+      border: 1px solid #444;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
       cursor: pointer;
-      transition: background 0.2s;
     }
 
     .btn-ctrl:hover {
-      background: rgba(0, 102, 204, 0.8);
-      border-color: #0066cc;
+      background: #0055b3;
     }
 
-    /* Wrapper e Redimensionador de Renderização */
     .iframe-wrapper {
       flex: 1;
       width: 100%;
       height: 100%;
       position: relative;
       overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     iframe {
-      width: 1280px;
-      height: 720px;
+      width: 100%;
+      height: 100%;
       border: none;
-      background: #fff;
-      position: absolute;
-      transform-origin: center center;
+      background: #111;
+      will-change: transform;
     }
   </style>
 </head>
 <body>
 
   <div class="top-bar">
-    <input type="text" id="globalUrl" value="https://poke.idleworld.online/login" placeholder="Digite uma URL global para todas...">
+    <input type="text" id="globalUrl" value="https://poke.idleworld.online/login" placeholder="URL Padrão...">
     
     <select id="screenSelect" onchange="alterarQuantidadeTelas(this.value)">
       <option value="1">1 Tela</option>
@@ -210,7 +191,8 @@
     </select>
 
     <div class="btn-group">
-      <button class="btn" onclick="carregarTodas()">Abrir em Todas</button>
+      <button class="btn btn-quick" onclick="entrarEmTudoComUmClique()" title="Carrega imediatamente as 4 contas salvas">⚡ 1-Clique: Entrar em Tudo</button>
+      <button class="btn" onclick="carregarTodas()">Abrir Global</button>
       <button class="btn btn-secondary" onclick="resetarLayout()">⚖️ Igualar</button>
       <button class="btn btn-secondary" onclick="recarregarTodas()">🔄 Recarregar</button>
     </div>
@@ -218,61 +200,24 @@
 
   <div class="grid-container qtd-4" id="grid">
     
-    <!-- Tela 1 -->
-    <div class="panel" id="panel1">
-      <div class="panel-actions">
-        <button class="btn-ctrl" onclick="destacarTela(1)" title="Destacar no topo">🔍 Destaque</button>
-        <button class="btn-ctrl" onclick="alterarUrlSlot(1)" title="Editar URL deste slot">🔗 Link</button>
-        <button class="btn-ctrl" onclick="recarregar(1)" title="Recarregar esta tela">🔄</button>
-        <button class="btn-ctrl" onclick="toggleMute(1)" id="btnMute1">🔊</button>
-        <button class="btn-ctrl" onclick="toggleFullscreen(1)" id="btnFull1">🗖 Tela Cheia</button>
-      </div>
-      <div class="iframe-wrapper" id="wrapper1">
-        <iframe id="frame1" src="about:blank"></iframe>
-      </div>
-    </div>
-
-    <!-- Tela 2 -->
-    <div class="panel" id="panel2">
-      <div class="panel-actions">
-        <button class="btn-ctrl" onclick="destacarTela(2)" title="Destacar no topo">🔍 Destaque</button>
-        <button class="btn-ctrl" onclick="alterarUrlSlot(2)" title="Editar URL deste slot">🔗 Link</button>
-        <button class="btn-ctrl" onclick="recarregar(2)" title="Recarregar esta tela">🔄</button>
-        <button class="btn-ctrl" onclick="toggleMute(2)" id="btnMute2">🔊</button>
-        <button class="btn-ctrl" onclick="toggleFullscreen(2)" id="btnFull2">🗖 Tela Cheia</button>
-      </div>
-      <div class="iframe-wrapper" id="wrapper2">
-        <iframe id="frame2" src="about:blank"></iframe>
-      </div>
-    </div>
-
-    <!-- Tela 3 -->
-    <div class="panel" id="panel3">
-      <div class="panel-actions">
-        <button class="btn-ctrl" onclick="destacarTela(3)" title="Destacar no topo">🔍 Destaque</button>
-        <button class="btn-ctrl" onclick="alterarUrlSlot(3)" title="Editar URL deste slot">🔗 Link</button>
-        <button class="btn-ctrl" onclick="recarregar(3)" title="Recarregar esta tela">🔄</button>
-        <button class="btn-ctrl" onclick="toggleMute(3)" id="btnMute3">🔊</button>
-        <button class="btn-ctrl" onclick="toggleFullscreen(3)" id="btnFull3">🗖 Tela Cheia</button>
-      </div>
-      <div class="iframe-wrapper" id="wrapper3">
-        <iframe id="frame3" src="about:blank"></iframe>
-      </div>
-    </div>
-
-    <!-- Tela 4 -->
-    <div class="panel" id="panel4">
-      <div class="panel-actions">
-        <button class="btn-ctrl" onclick="destacarTela(4)" title="Destacar no topo">🔍 Destaque</button>
-        <button class="btn-ctrl" onclick="alterarUrlSlot(4)" title="Editar URL deste slot">🔗 Link</button>
-        <button class="btn-ctrl" onclick="recarregar(4)" title="Recarregar esta tela">🔄</button>
-        <button class="btn-ctrl" onclick="toggleMute(4)" id="btnMute4">🔊</button>
-        <button class="btn-ctrl" onclick="toggleFullscreen(4)" id="btnFull4">🗖 Tela Cheia</button>
-      </div>
-      <div class="iframe-wrapper" id="wrapper4">
-        <iframe id="frame4" src="about:blank"></iframe>
-      </div>
-    </div>
+    <!-- Slots 1 a 4 -->
+    <script>
+      for (let i = 1; i <= 4; i++) {
+        document.write(`
+          <div class="panel" id="panel${i}">
+            <div class="panel-actions">
+              <button class="btn-ctrl" onclick="destacarTela(${i})">🔍 Focus</button>
+              <button class="btn-ctrl" onclick="alterarUrlSlot(${i})">🔗 Conta</button>
+              <button class="btn-ctrl" onclick="recarregar(${i})">🔄</button>
+              <button class="btn-ctrl" onclick="toggleFullscreen(${i})" id="btnFull${i}">🗖</button>
+            </div>
+            <div class="iframe-wrapper">
+              <iframe id="frame${i}" src="about:blank" loading="lazy"></iframe>
+            </div>
+          </div>
+        `);
+      }
+    </script>
 
   </div>
 
@@ -280,6 +225,8 @@
     const URL_PADRAO = 'https://poke.idleworld.online/login';
 
     function formatarUrl(url) {
+      if (!url) return URL_PADRAO;
+      url = url.trim();
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         return 'https://' + url;
       }
@@ -288,15 +235,27 @@
 
     function carregarSlot(id, url) {
       const urlFormatada = formatarUrl(url);
-      document.getElementById('frame' + id).src = urlFormatada;
+      const frame = document.getElementById('frame' + id);
+      
+      // Só recarrega se a URL mudar para economizar processamento
+      if (frame.src !== urlFormatada) {
+        frame.src = urlFormatada;
+      }
       localStorage.setItem('saved_slot_' + id, urlFormatada);
     }
 
     function alterarUrlSlot(id) {
       const urlAtual = localStorage.getItem('saved_slot_' + id) || URL_PADRAO;
-      const novaUrl = prompt(`Digite a URL para o Slot ${id}:`, urlAtual);
-      if (novaUrl && novaUrl.trim() !== '') {
-        carregarSlot(id, novaUrl.trim());
+      const novaUrl = prompt(`URL/Conta salva para a Tela ${id}:`, urlAtual);
+      if (novaUrl !== null) {
+        carregarSlot(id, novaUrl);
+      }
+    }
+
+    function entrarEmTudoComUmClique() {
+      for (let i = 1; i <= 4; i++) {
+        const urlSalva = localStorage.getItem('saved_slot_' + i) || URL_PADRAO;
+        carregarSlot(i, urlSalva);
       }
     }
 
@@ -330,23 +289,24 @@
 
       for (let i = 1; i <= 4; i++) {
         const panel = document.getElementById('panel' + i);
+        const frame = document.getElementById('frame' + i);
+
         if (i <= qtdInt) {
           panel.classList.remove('hidden');
         } else {
           panel.classList.add('hidden');
+          // Pausa scripts de telas ocultas limpando o src temporariamente para economizar RAM/CPU
+          frame.src = "about:blank";
         }
       }
-
-      setTimeout(autoAjustarEscala, 150);
     }
 
     function destacarTela(idTarget) {
       const grid = document.getElementById('grid');
 
-      // Limpa tela cheia se houver
       for (let i = 1; i <= 4; i++) {
         document.getElementById('panel' + i).classList.remove('fullscreen');
-        document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
+        document.getElementById('btnFull' + i).innerText = "🗖";
       }
 
       grid.classList.add('has-focus');
@@ -359,8 +319,6 @@
           panel.classList.remove('focus-target');
         }
       }
-
-      setTimeout(autoAjustarEscala, 150);
     }
 
     function resetarLayout() {
@@ -371,10 +329,8 @@
         const panel = document.getElementById('panel' + i);
         panel.classList.remove('focus-target');
         panel.classList.remove('fullscreen');
-        document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
+        document.getElementById('btnFull' + i).innerText = "🗖";
       }
-
-      setTimeout(autoAjustarEscala, 150);
     }
 
     function toggleFullscreen(id) {
@@ -383,46 +339,11 @@
 
       if (panel.classList.contains('fullscreen')) {
         panel.classList.remove('fullscreen');
-        btn.innerText = "🗖 Tela Cheia";
+        btn.innerText = "🗖";
       } else {
         resetarLayout();
         panel.classList.add('fullscreen');
-        btn.innerText = "🗗 Restaurar Layout";
-      }
-
-      setTimeout(autoAjustarEscala, 150);
-    }
-
-    function toggleMute(id) {
-      const frame = document.getElementById('frame' + id);
-      const btn = document.getElementById('btnMute' + id);
-
-      if (frame.hasAttribute('muted')) {
-        frame.removeAttribute('muted');
-        btn.innerText = "🔊";
-      } else {
-        frame.setAttribute('muted', 'true');
-        btn.innerText = "🔇";
-      }
-    }
-
-    // Calcula dinamicamente o zoom/escala para não cortar nada
-    function autoAjustarEscala() {
-      for (let i = 1; i <= 4; i++) {
-        const wrapper = document.getElementById('wrapper' + i);
-        const frame = document.getElementById('frame' + i);
-
-        if (wrapper && frame) {
-          const width = wrapper.clientWidth;
-          const height = wrapper.clientHeight;
-
-          if (width > 0 && height > 0) {
-            const scaleX = width / 1280;
-            const scaleY = height / 720;
-            const scale = Math.min(scaleX, scaleY);
-            frame.style.transform = `scale(${scale})`;
-          }
-        }
+        btn.innerText = "🗗";
       }
     }
 
@@ -436,19 +357,9 @@
         document.getElementById('globalUrl').value = savedGlobal;
       }
 
-      for (let i = 1; i <= 4; i++) {
-        const savedSlotUrl = localStorage.getItem('saved_slot_' + i);
-        if (savedSlotUrl) {
-          document.getElementById('frame' + i).src = savedSlotUrl;
-        } else {
-          carregarSlot(i, URL_PADRAO);
-        }
-      }
-
-      autoAjustarEscala();
+      // Carrega automaticamente o último estado configurado
+      entrarEmTudoComUmClique();
     });
-
-    window.addEventListener('resize', autoAjustarEscala);
   </script>
 </body>
 </html>
