@@ -2,9 +2,11 @@ name: Gerar Release (.exe)
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ main, master ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   release:
@@ -30,6 +32,10 @@ jobs:
       - name: Criar Release e Anexar o .exe
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: v1.0.0
+          name: Release v1.0.0
+          draft: false
+          prerelease: false
           files: dist/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
