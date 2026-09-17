@@ -3,215 +3,136 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multi-Idle Launcher</title>
-
-  <!-- Configurações para PWA / App Instalável -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0a0a0a">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+  <title>Multi-Idle Single Window</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background-color: #0a0a0a;
-      color: #fff;
-      font-family: system-ui, -apple-system, sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+    html, body { width: 100%; height: 100%; background: #0d0d0d; color: #fff; font-family: sans-serif; overflow: hidden; }
+    body { display: flex; flex-direction: column; }
 
-    .container {
-      background: #161616;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      padding: 24px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    /* Barra Superior Integrada */
+    .top-bar {
+      display: flex; gap: 8px; padding: 6px 12px; background: #161616; border-bottom: 1px solid #2a2a2a; align-items: center;
     }
+    .top-bar label { font-size: 12px; font-weight: bold; color: #0088ff; }
+    .btn { background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .btn:hover { background: #218838; }
+    .btn-fs { background: #0066cc; }
+    .btn-fs:hover { background: #0052a3; }
 
-    h1 {
-      font-size: 1.2rem;
-      margin-bottom: 16px;
-      color: #0088ff;
-      text-align: center;
-    }
-
-    .btn-install {
-      width: 100%;
-      background: #ff9900;
-      color: #000;
-      border: none;
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 15px;
-      display: none; /* Só aparece quando o navegador permitir instalar */
-    }
-
-    .slot-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .slot-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .slot-row label {
-      font-size: 12px;
-      width: 60px;
-      font-weight: bold;
-    }
-
-    .slot-row input {
+    /* Container Grid Interno - Tudo na mesma janela */
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
       flex: 1;
-      background: #222;
-      border: 1px solid #333;
-      color: #fff;
-      padding: 8px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-
-    .btn-main {
       width: 100%;
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
+      height: 100%;
+      background: #000;
     }
 
-    .btn-main:hover { background: #218838; }
+    .slot-panel {
+      display: flex; flex-direction: column; background: #111; border: 1px solid #222; position: relative; overflow: hidden;
+    }
 
-    .help-text {
-      font-size: 11px;
-      color: #888;
-      margin-top: 15px;
-      line-height: 1.4;
-      text-align: center;
+    .slot-header {
+      display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: #1c1c1c; font-size: 11px; border-bottom: 1px solid #2a2a2a;
+    }
+
+    .slot-header input {
+      background: #2b2b2b; border: 1px solid #444; color: #fff; padding: 2px 6px; font-size: 10px; border-radius: 3px; width: 60%;
+    }
+
+    /* Iframe com atributos de isolamento de sessão */
+    iframe {
+      flex: 1; width: 100%; height: 100%; border: none; background: #fff;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>Multi-Idle Account Launcher</h1>
+  <div class="top-bar">
+    <label>Multi-Idle App</label>
+    <button class="btn" onclick="carregarTodasAsContas()">⚡ 1-Clique: Entrar em Tudo na Mesma Janela</button>
+    <button class="btn btn-fs" onclick="toggleFullscreen()">🗖 Tela Cheia Unificada</button>
+  </div>
 
-    <button id="btnInstall" class="btn-install" onclick="instalarApp()">📲 Instalar App no Computador</button>
-
-    <div class="slot-group">
-      <div class="slot-row">
-        <label>Conta 1:</label>
-        <input type="text" id="slot1" placeholder="URL da Conta 1">
+  <div class="grid-container">
+    
+    <!-- Tela 1 -->
+    <div class="slot-panel">
+      <div class="slot-header">
+        <span>Conta 1</span>
+        <input type="text" id="url1" value="https://poke.idleworld.online/login">
       </div>
-      <div class="slot-row">
-        <label>Conta 2:</label>
-        <input type="text" id="slot2" placeholder="URL da Conta 2">
-      </div>
-      <div class="slot-row">
-        <label>Conta 3:</label>
-        <input type="text" id="slot3" placeholder="URL da Conta 3">
-      </div>
-      <div class="slot-row">
-        <label>Conta 4:</label>
-        <input type="text" id="slot4" placeholder="URL da Conta 4">
-      </div>
+      <!-- 'sandbox' e 'name' garantem que a sessão fique isolada sem fechar as outras -->
+      <iframe id="frame1" name="session_slot_1" src="about:blank"></iframe>
     </div>
 
-    <button class="btn-main" onclick="abrirTodasAsContas()">⚡ 1-CLIQUE: ABRIR AS 4 CONTAS</button>
-
-    <div class="help-text">
-      <b>Nota:</b> Permita <i>Pop-ups</i> na primeira execução para abrir todas as janelas separadas sem a barra do navegador.
+    <!-- Tela 2 -->
+    <div class="slot-panel">
+      <div class="slot-header">
+        <span>Conta 2</span>
+        <input type="text" id="url2" value="https://poke.idleworld.online/login">
+      </div>
+      <iframe id="frame2" name="session_slot_2" src="about:blank"></iframe>
     </div>
+
+    <!-- Tela 3 -->
+    <div class="slot-panel">
+      <div class="slot-header">
+        <span>Conta 3</span>
+        <input type="text" id="url3" value="https://poke.idleworld.online/login">
+      </div>
+      <iframe id="frame3" name="session_slot_3" src="about:blank"></iframe>
+    </div>
+
+    <!-- Tela 4 -->
+    <div class="slot-panel">
+      <div class="slot-header">
+        <span>Conta 4</span>
+        <input type="text" id="url4" value="https://poke.idleworld.online/login">
+      </div>
+      <iframe id="frame4" name="session_slot_4" src="about:blank"></iframe>
+    </div>
+
   </div>
 
   <script>
     const URL_PADRAO = 'https://poke.idleworld.online/login';
 
-    function carregarConfiguracoes() {
+    function carregarTodasAsContas() {
       for (let i = 1; i <= 4; i++) {
-        const urlSalva = localStorage.getItem('app_slot_' + i) || URL_PADRAO;
-        document.getElementById('slot' + i).value = urlSalva;
+        const input = document.getElementById('url' + i);
+        const frame = document.getElementById('frame' + i);
+        const url = input.value.trim() || URL_PADRAO;
+
+        localStorage.setItem('single_window_url_' + i, url);
+        
+        // Força o recarregamento na mesma janela de forma isolada
+        frame.src = url;
       }
     }
 
-    function salvarConfiguracoes() {
-      for (let i = 1; i <= 4; i++) {
-        const val = document.getElementById('slot' + i).value.trim();
-        localStorage.setItem('app_slot_' + i, val || URL_PADRAO);
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
       }
     }
 
-    function abrirTodasAsContas() {
-      salvarConfiguracoes();
-
-      const width = Math.floor(window.screen.availWidth / 2);
-      const height = Math.floor(window.screen.availHeight / 2);
-
-      const posicoes = [
-        { left: 0, top: 0 },
-        { left: width, top: 0 },
-        { left: 0, top: height },
-        { left: width, top: height }
-      ];
-
+    // Carrega os links salvos ao abrir o app
+    window.addEventListener('DOMContentLoaded', () => {
       for (let i = 1; i <= 4; i++) {
-        const url = document.getElementById('slot' + i).value.trim() || URL_PADRAO;
-        const pos = posicoes[i - 1];
-        const features = `width=${width},height=${height},left=${pos.left},top=${pos.top},menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes`;
-
-        const novaJanela = window.open(url, 'ContaSlot_' + i, features);
-
-        if (!novaJanela) {
-          alert('Por favor, permita pop-ups no navegador para abrir as 4 janelas.');
-          break;
+        const savedUrl = localStorage.getItem('single_window_url_' + i);
+        if (savedUrl) {
+          document.getElementById('url' + i).value = savedUrl;
         }
       }
-    }
-
-    // Lógica para registrar o PWA
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
-    }
-
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('btnInstall').style.display = 'block';
+      carregarTodasAsContas();
     });
-
-    function instalarApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-          deferredPrompt = null;
-          document.getElementById('btnInstall').style.display = 'none';
-        });
-      }
-    }
-
-    for (let i = 1; i <= 4; i++) {
-      document.getElementById('slot' + i).addEventListener('change', salvarConfiguracoes);
-    }
-
-    window.addEventListener('DOMContentLoaded', carregarConfiguracoes);
   </script>
 </body>
 </html>
