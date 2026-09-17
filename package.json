@@ -9,6 +9,9 @@
   },
   "author": "Desenvolvedor",
   "license": "MIT",
+  "dependencies": {
+    "electron-updater": "^6.1.7"
+  },
   "devDependencies": {
     "electron": "^28.0.0",
     "electron-builder": "^24.9.0"
@@ -16,8 +19,15 @@
   "build": {
     "appId": "com.pokemulti.manager",
     "productName": "Poke Multi Manager",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "garagem164",
+        "repo": "Multiidle"
+      }
+    ],
     "win": {
-      "target": ["nsis", "portable"],
+      "target": ["nsis"],
       "icon": "icon.ico"
     },
     "nsis": {
