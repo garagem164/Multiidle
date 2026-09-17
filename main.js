@@ -1,5 +1,5 @@
 const { app, BrowserWindow } = require('electron');
-const path = require('path');
+const { autoUpdater } = require('electron-updater');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -17,6 +17,9 @@ function createWindow() {
   });
 
   win.loadFile('index.html');
+
+  // Checa se há uma nova versão publicada no GitHub Releases
+  autoUpdater.checkForUpdatesAndNotify();
 }
 
 app.whenReady().then(createWindow);
