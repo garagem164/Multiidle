@@ -1,12 +1,13 @@
-name: Gerar Instalador Windows (.exe)
+name: Gerar Release (.exe)
 
 on:
   push:
-    branches: [ main, master ]
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
-  build:
+  release:
     runs-on: windows-latest
 
     steps:
@@ -21,13 +22,14 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
-      - name: Compilar para Windows (.exe)
+      - name: Compilar aplicativo (.exe)
         run: npm run build:win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Disponibilizar o arquivo .exe para download
-        uses: actions/upload-artifact@v3
+      - name: Criar Release e Anexar o .exe
+        uses: softprops/action-gh-release@v1
         with:
-          name: Instalador-PokeMultiManager
-          path: dist/*.exe
+          files: dist/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
