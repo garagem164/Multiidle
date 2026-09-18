@@ -5,19 +5,21 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
-    minWidth: 800,
+    minWidth: 900,
     minHeight: 600,
     title: "Poke Multi Manager",
     autoHideMenuBar: true,
     webPreferences: {
       webviewTag: true,
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      webSecurity: false
     }
   });
 
   win.loadFile('index.html');
 
+  // Silenciosamente verifica atualizações em segundo plano
   autoUpdater.checkForUpdatesAndNotify();
 }
 
