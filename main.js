@@ -7,7 +7,7 @@ function createWindow() {
     height: 800,
     minWidth: 800,
     minHeight: 600,
-    title: "Poke Multi Manager - 4 Contas",
+    title: "Poke Multi Manager",
     autoHideMenuBar: true,
     webPreferences: {
       webviewTag: true,
@@ -18,7 +18,6 @@ function createWindow() {
 
   win.loadFile('index.html');
 
-  // Checa se há uma nova versão publicada no GitHub Releases
   autoUpdater.checkForUpdatesAndNotify();
 }
 
