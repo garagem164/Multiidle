@@ -2,63 +2,144 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Poke Multi Manager</title>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     html, body {
       width: 100%;
       height: 100%;
-      margin: 0;
-      padding: 0;
-      background: #121214;
-      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #fff;
+      font-family: system-ui, -apple-system, sans-serif;
       overflow: hidden;
+    }
+
+    body {
       display: flex;
       flex-direction: column;
     }
-    
-    .toolbar {
-      height: 45px;
-      background: #202024;
+
+    /* Barra de Ferramentas Superior */
+    .top-bar {
       display: flex;
+      gap: 8px;
+      padding: 6px 10px;
+      background-color: #1e1e1e;
+      border-bottom: 1px solid #333;
       align-items: center;
-      gap: 10px;
-      padding: 0 12px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-      z-index: 10;
+      flex-wrap: wrap;
+      z-index: 100;
+      height: 45px;
     }
 
-    button {
-      background: #4f46e5;
+    .top-bar input {
+      flex: 1 1 200px;
+      background: #2b2b2b;
+      border: 1px solid #444;
       color: #fff;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .top-bar select {
+      background: #2b2b2b;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn {
+      background: #4f46e5;
+      color: white;
       border: none;
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 13px;
+      font-size: 12px;
+      font-weight: 600;
     }
 
-    button:hover {
-      background: #4338ca;
-    }
+    .btn:hover { background: #4338ca; }
+    .btn-secondary { background: #333; border: 1px solid #555; }
+    .btn-secondary:hover { background: #444; }
 
+    /* Container Dinâmico */
     .grid-container {
-      flex: 1;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
-      gap: 2px;
-      background: #000;
+      flex: 1;
+      gap: 4px;
+      padding: 4px;
       width: 100%;
       height: calc(100vh - 45px);
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      position: relative;
+      background: #000;
     }
 
-    .card {
+    .panel {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #333;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #18181b;
+      position: relative;
+    }
+
+    .panel.hidden {
+      display: none !important;
+    }
+
+    .panel.fullscreen {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      position: relative;
-      background: #18181b;
-      overflow: hidden;
+      z-index: 50;
+      border: none;
+      border-radius: 0;
+    }
+
+    /* Botões Flutuantes sobre os quadros */
+    .panel-actions {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      z-index: 20;
+      display: flex;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 4px;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-ctrl {
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .btn-ctrl:hover {
+      background: #4f46e5;
+      border-color: #4f46e5;
     }
 
     webview {
@@ -70,32 +151,196 @@
 </head>
 <body>
 
-  <div class="toolbar">
-    <button onclick="recarregarTodas()">Recarregar Todas</button>
+  <div class="top-bar">
+    <input type="text" id="globalUrl" value="https://poke.idleworld.online/login" placeholder="Digite uma URL para todas as contas...">
+    
+    <select id="screenSelect" onchange="alterarQuantidadeTelas(this.value)">
+      <option value="1">1 Tela</option>
+      <option value="2">2 Telas</option>
+      <option value="4" selected>4 Telas</option>
+    </select>
+
+    <div class="btn-group">
+      <button class="btn" onclick="carregarTodas()">Abrir em Todas</button>
+      <button class="btn btn-secondary" onclick="recarregarTodas()">🔄 Recarregar</button>
+    </div>
   </div>
 
-  <div class="grid-container">
-    <div class="card">
-      <webview id="view1" src="https://pokeidle.net" partition="persist:acc1" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"></webview>
+  <div class="grid-container" id="grid">
+    
+    <!-- Tela 1 -->
+    <div class="panel" id="panel1">
+      <div class="panel-actions">
+        <button class="btn-ctrl" onclick="alterarUrlSlot(1)" title="Editar URL deste slot">🔗 Link</button>
+        <button class="btn-ctrl" onclick="recarregar(1)" title="Recarregar esta tela">🔄</button>
+        <button class="btn-ctrl" onclick="toggleMute(1)" id="btnMute1">🔊</button>
+        <button class="btn-ctrl" onclick="toggleFullscreen(1)" id="btnFull1">🗖 Tela Cheia</button>
+      </div>
+      <webview id="view1" src="about:blank" partition="persist:acc1" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"></webview>
     </div>
-    <div class="card">
-      <webview id="view2" src="https://pokeidle.net" partition="persist:acc2" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"></webview>
+
+    <!-- Tela 2 -->
+    <div class="panel" id="panel2">
+      <div class="panel-actions">
+        <button class="btn-ctrl" onclick="alterarUrlSlot(2)" title="Editar URL deste slot">🔗 Link</button>
+        <button class="btn-ctrl" onclick="recarregar(2)" title="Recarregar esta tela">🔄</button>
+        <button class="btn-ctrl" onclick="toggleMute(2)" id="btnMute2">🔊</button>
+        <button class="btn-ctrl" onclick="toggleFullscreen(2)" id="btnFull2">🗖 Tela Cheia</button>
+      </div>
+      <webview id="view2" src="about:blank" partition="persist:acc2" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"></webview>
     </div>
-    <div class="card">
-      <webview id="view3" src="https://pokeidle.net" partition="persist:acc3" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"></webview>
+
+    <!-- Tela 3 -->
+    <div class="panel" id="panel3">
+      <div class="panel-actions">
+        <button class="btn-ctrl" onclick="alterarUrlSlot(3)" title="Editar URL deste slot">🔗 Link</button>
+        <button class="btn-ctrl" onclick="recarregar(3)" title="Recarregar esta tela">🔄</button>
+        <button class="btn-ctrl" onclick="toggleMute(3)" id="btnMute3">🔊</button>
+        <button class="btn-ctrl" onclick="toggleFullscreen(3)" id="btnFull3">🗖 Tela Cheia</button>
+      </div>
+      <webview id="view3" src="about:blank" partition="persist:acc3" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"></webview>
     </div>
-    <div class="card">
-      <webview id="view4" src="https://pokeidle.net" partition="persist:acc4" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"></webview>
+
+    <!-- Tela 4 -->
+    <div class="panel" id="panel4">
+      <div class="panel-actions">
+        <button class="btn-ctrl" onclick="alterarUrlSlot(4)" title="Editar URL deste slot">🔗 Link</button>
+        <button class="btn-ctrl" onclick="recarregar(4)" title="Recarregar esta tela">🔄</button>
+        <button class="btn-ctrl" onclick="toggleMute(4)" id="btnMute4">🔊</button>
+        <button class="btn-ctrl" onclick="toggleFullscreen(4)" id="btnFull4">🗖 Tela Cheia</button>
+      </div>
+      <webview id="view4" src="about:blank" partition="persist:acc4" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"></webview>
     </div>
+
   </div>
 
   <script>
-    function recarregarTodas() {
-      for (let i = 1; i <= 4; i++) {
-        const wv = document.getElementById(`view${i}`);
-        if (wv) wv.reload();
+    const URL_PADRAO = 'https://poke.idleworld.online/login';
+
+    function formatarUrl(url) {
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        return 'https://' + url;
+      }
+      return url;
+    }
+
+    function carregarSlot(id, url) {
+      const urlFormatada = formatarUrl(url);
+      const wv = document.getElementById('view' + id);
+      if (wv) wv.src = urlFormatada;
+      localStorage.setItem('saved_slot_' + id, urlFormatada);
+    }
+
+    function alterarUrlSlot(id) {
+      const urlAtual = localStorage.getItem('saved_slot_' + id) || URL_PADRAO;
+      const novaUrl = prompt(`Digite a URL para a Tela ${id}:`, urlAtual);
+      if (novaUrl && novaUrl.trim() !== '') {
+        carregarSlot(id, novaUrl.trim());
       }
     }
+
+    function carregarTodas() {
+      const urlGlobal = formatarUrl(document.getElementById('globalUrl').value);
+      localStorage.setItem('saved_global_url', urlGlobal);
+      for (let i = 1; i <= 4; i++) {
+        carregarSlot(i, urlGlobal);
+      }
+    }
+
+    function recarregar(id) {
+      const wv = document.getElementById('view' + id);
+      if (wv) wv.reload();
+    }
+
+    function recarregarTodas() {
+      for (let i = 1; i <= 4; i++) {
+        recarregar(i);
+      }
+    }
+
+    function alterarQuantidadeTelas(qtd) {
+      const grid = document.getElementById('grid');
+      const qtdInt = parseInt(qtd, 10);
+      localStorage.setItem('saved_qtd', qtd);
+
+      for (let i = 1; i <= 4; i++) {
+        const panel = document.getElementById('panel' + i);
+        panel.classList.remove('fullscreen');
+        document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
+      }
+
+      for (let i = 1; i <= 4; i++) {
+        const panel = document.getElementById('panel' + i);
+        if (i <= qtdInt) {
+          panel.classList.remove('hidden');
+        } else {
+          panel.classList.add('hidden');
+        }
+      }
+
+      if (qtdInt === 1) {
+        grid.style.gridTemplateColumns = '1fr';
+        grid.style.gridTemplateRows = '1fr';
+      } else if (qtdInt === 2) {
+        grid.style.gridTemplateColumns = '1fr 1fr';
+        grid.style.gridTemplateRows = '1fr';
+      } else if (qtdInt === 4) {
+        grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+        grid.style.gridTemplateRows = 'repeat(2, 1fr)';
+      }
+    }
+
+    function toggleFullscreen(id) {
+      const panel = document.getElementById('panel' + id);
+      const btn = document.getElementById('btnFull' + id);
+
+      if (panel.classList.contains('fullscreen')) {
+        panel.classList.remove('fullscreen');
+        btn.innerText = "🗖 Tela Cheia";
+      } else {
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById('panel' + i).classList.remove('fullscreen');
+          document.getElementById('btnFull' + i).innerText = "🗖 Tela Cheia";
+        }
+        panel.classList.add('fullscreen');
+        btn.innerText = "🗗 Restaurar Layout";
+      }
+    }
+
+    function toggleMute(id) {
+      const wv = document.getElementById('view' + id);
+      const btn = document.getElementById('btnMute' + id);
+
+      if (wv.isAudioMuted()) {
+        wv.setAudioMuted(false);
+        btn.innerText = "🔊";
+      } else {
+        wv.setAudioMuted(true);
+        btn.innerText = "🔇";
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedQtd = localStorage.getItem('saved_qtd');
+      if (savedQtd) {
+        document.getElementById('screenSelect').value = savedQtd;
+        alterarQuantidadeTelas(savedQtd);
+      }
+
+      const savedGlobal = localStorage.getItem('saved_global_url');
+      if (savedGlobal) {
+        document.getElementById('globalUrl').value = savedGlobal;
+      }
+
+      for (let i = 1; i <= 4; i++) {
+        const savedSlotUrl = localStorage.getItem('saved_slot_' + i);
+        if (savedSlotUrl) {
+          carregarSlot(i, savedSlotUrl);
+        } else {
+          carregarSlot(i, URL_PADRAO);
+        }
+      }
+    });
   </script>
 </body>
 </html>
